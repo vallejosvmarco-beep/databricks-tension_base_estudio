@@ -1,0 +1,11 @@
+resources:
+  jobs:
+    initialize_foundation:
+      name: ${bundle.target}-${bundle.name}-initialize
+      tasks:
+        - task_key: create_foundation
+          sql_task:
+            warehouse_id: ${var.warehouse_id}
+            file:
+              path: ../src/initialize.sql
+              source: WORKSPACE

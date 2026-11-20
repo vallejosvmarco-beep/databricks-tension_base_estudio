@@ -1,0 +1,20 @@
+bundle:
+  name: universal_data_foundation
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Existing Unity Catalog catalog
+    default: workspace
+  schema:
+    description: Project schema to create
+    default: project_base
+  warehouse_id:
+    description: Existing SQL warehouse ID for initialization
+
+targets:
+  dev:
+    default: true
+    mode: development
