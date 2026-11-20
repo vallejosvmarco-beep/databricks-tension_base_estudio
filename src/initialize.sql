@@ -1,10 +1,7 @@
--- Replace placeholders using the deployment script before running this SQL.
--- This file is a reference SQL template; use src/initialize.py in a notebook
--- if SQL task variable substitution is unavailable.
-CREATE SCHEMA IF NOT EXISTS workspace.project_base;
-CREATE VOLUME IF NOT EXISTS workspace.project_base.landing;
-CREATE VOLUME IF NOT EXISTS workspace.project_base.metadata;
-CREATE VOLUME IF NOT EXISTS workspace.project_base.sandbox;
-CREATE SCHEMA IF NOT EXISTS workspace.project_base_bronze;
-CREATE SCHEMA IF NOT EXISTS workspace.project_base_silver;
-CREATE SCHEMA IF NOT EXISTS workspace.project_base_gold;
+-- tension_base: verificacion del destino y del origen de datos.
+-- No crea esquemas ni volumenes: se usa el esquema existente datosami.datos
+-- (sin permiso CREATE SCHEMA en datosami) y el volumen de aterrizaje existente.
+-- Origen: /Volumes/datosami/datos/vol_alunizaje/ami/tension/
+--         source=AMI/format=PARQUET/periodo=AAAA/mes=M/r1|r2/*.parquet
+DESCRIBE SCHEMA datosami.datos;
+LIST '/Volumes/datosami/datos/vol_alunizaje/ami/tension/source=AMI/format=PARQUET/';

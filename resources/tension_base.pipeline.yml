@@ -1,0 +1,16 @@
+resources:
+  pipelines:
+    tension_base:
+      name: tension_base
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      root_path: ../src/tension_base
+      libraries:
+        - glob:
+            include: ../src/tension_base/transformations/**
+      serverless: true
+      continuous: false
+      photon: true
+      channel: current
+      configuration:
+        tension_base.path: ${var.tension_base_path}

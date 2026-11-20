@@ -1,20 +1,25 @@
 bundle:
-  name: universal_data_foundation
+  name: tension_base
 
 include:
   - resources/*.yml
 
 variables:
   catalog:
-    description: Existing Unity Catalog catalog
-    default: workspace
+    description: Catalogo Unity Catalog existente del proyecto tension_base
+    default: datosami
   schema:
-    description: Project schema to create
-    default: project_base
+    description: Esquema existente donde se publican las tablas de tension_base
+    default: datos
+  tension_base_path:
+    description: Ruta del volumen de aterrizaje con los datos de tension (parquet particionado por periodo/mes/region)
+    default: /Volumes/datosami/datos/vol_alunizaje/ami/tension/
   warehouse_id:
-    description: Existing SQL warehouse ID for initialization
+    description: SQL warehouse existente para la tarea de inicializacion
 
 targets:
   dev:
     default: true
     mode: development
+    variables:
+      warehouse_id: fac1da9aa4b8e6dd

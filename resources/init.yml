@@ -1,9 +1,9 @@
 resources:
   jobs:
-    initialize_foundation:
-      name: ${bundle.target}-${bundle.name}-initialize
+    tension_base_initialize:
+      name: tension_base_initialize
       tasks:
-        - task_key: create_foundation
+        - task_key: tension_base_verificar_origen
           sql_task:
             warehouse_id: ${var.warehouse_id}
             file:

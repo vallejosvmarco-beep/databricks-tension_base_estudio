@@ -1,38 +1,49 @@
-# Universal Databricks Free Edition foundation
+# tension_base
 
-Reusable GitHub template for a Unity Catalog landing volume and medallion schemas.
+Bundle (Declarative Automation Bundle) del proyecto tension_base.
 
-## Important
+## Origen de datos
 
-Free Edition capabilities and quotas vary. This template uses an **existing** catalog (`workspace` by default) and assumes permissions to create schemas and managed volumes. It does not create a catalog, compute, or warehouse. Databricks Asset Bundles deployment requires Databricks CLI authentication. A GitHub repository alone does not automatically deploy resources.
+Los datos de tension se leen del volumen de aterrizaje:
 
-## Recommended first-time setup (Free Edition)
+`/Volumes/datosami/datos/vol_alunizaje/ami/tension/`
 
-1. Create a GitHub repository using this folder as a template.
-2. Open the repository in a Databricks Git folder, or import `src/initialize.py` into your workspace.
-3. Set `CATALOG` and `PROJECT` in the notebook, then run it using available compute.
-4. Upload source files to `/Volumes/<catalog>/<project>/landing/`.
-5. Ask your available Databricks AI coding assistant to create the ingestion pipeline and Delta tables. Genie is generally for querying data, not provisioning pipelines.
+Estructura: `source=AMI/format=PARQUET/periodo=AAAA/mes=M/r1|r2/*.parquet` (regiones r1 y r2; 2024-01 a 2026-10, 260 archivos, ~1.9 GB al 2026-11-20).
 
-## Bundle CLI path (where supported)
+## Destino
 
-The bundle includes a SQL initialization job, but its SQL is an **example** with fixed `workspace.project_base` names. Edit `src/initialize.sql` to match your project before deployment. Set a valid existing SQL warehouse ID and authenticate the CLI:
+Catalogo `datosami`, esquema existente `datos` (variables `catalog` y `schema`). No se crean esquemas ni volumenes: el usuario no tiene CREATE SCHEMA en `datosami`.
+
+## Variables
+
+* `catalog`: `datosami`
+* `schema`: `datos`
+* `tension_base_path`: `/Volumes/datosami/datos/vol_alunizaje/ami/tension/`
+* `warehouse_id`: en `dev`, `fac1da9aa4b8e6dd` (Serverless Starter Warehouse)
+
+## Uso
 
 ```bash
-databricks bundle validate --var warehouse_id=<SQL_WAREHOUSE_ID>
-databricks bundle deploy --var warehouse_id=<SQL_WAREHOUSE_ID>
-databricks bundle run initialize_foundation --var warehouse_id=<SQL_WAREHOUSE_ID>
+databricks bundle validate --target dev
+databricks bundle deploy --target dev
+databricks bundle run tension_base_initialize --target dev
 ```
 
-`bundle deploy` deploys the job definition; `bundle run` executes initialization. The CLI route depends on an available SQL warehouse and permissions; the notebook route is the recommended fallback.
+El job `tension_base_initialize` solo verifica el esquema destino y lista el origen de tension.
 
-## Suggested AI prompt
+## Pipeline `tension_base`
 
-Read CSV/Parquet files in `/Volumes/workspace/project_base/landing/`, infer schemas, create append-safe bronze Delta tables in `workspace.project_base_bronze`, track source filename and ingestion timestamp, quarantine malformed rows, and explain the generated pipeline before execution. Never delete landing files without approval.
+Pipeline (Lakeflow Spark Declarative Pipelines, serverless, triggered) con la tabla de streaming `datosami.datos.tension_base_bronce_tension`: ingesta incremental con Auto Loader (cada corrida solo lee parquet nuevos). Agrega `PERIODO`, `MES` (particiones), `REGION` (r1/r2), `ARCHIVO` y `FECHA_INGESTA`.
 
-## Layout
+```bash
+databricks bundle run tension_base --target dev
+```
 
-- `databricks.yml`: bundle settings
-- `resources/init.yml`: optional SQL initialization job
-- `src/initialize.py`: recommended Free Edition initialization notebook
-- `src/initialize.sql`: example SQL initialization script
+## Estructura
+
+* `databricks.yml`: configuracion del bundle
+* `resources/init.yml`: job `tension_base_initialize`
+* `resources/tension_base.pipeline.yml`: pipeline `tension_base`
+* `src/tension_base/transformations/bronce/tension_base_bronce_tension.py`: tabla bronce de tension
+* `src/initialize`: notebook de verificacion del origen tension_base
+* `src/initialize.sql`: SQL de verificacion usado por el job
